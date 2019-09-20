@@ -57,6 +57,14 @@ RUN \
   ln -s /home/sbtuser/.ivy2 /root/.ivy2 && \
   ln -s /home/sbtuser/.sbt /root/.sbt
 
+# Install gcloud
+
+RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
+RUN apt-get install apt-transport-https -y
+RUN apt-get install ca-certificates -y
+RUN curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key --keyring /usr/share/keyrings/cloud.google.gpg add -
+RUN apt-get update -y && apt-get install google-cloud-sdk -y
+
 # Switch working directory back to root
 ## Users wanting to use this container as non-root should combine the two following arguments
 ## -u sbtuser
