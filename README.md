@@ -3,6 +3,12 @@
 This repository contains **Dockerfile** of [Scala](http://www.scala-lang.org) and [sbt](http://www.scala-sbt.org).
 
 
+```
+docker build --build-arg BASE_IMAGE_TAG="11.0.4-jdk-stretch" --build-arg SBT_VERSION="1.3.1" --build-arg SCALA_VERSION="2.13.1" -t mvillafuertem/scala-sbt:jdk-11.0.4_sbt-1.3.1_scala-2.13.1 .
+
+```
+
+
 ## Base Docker Image ##
 
 * [openjdk](https://hub.docker.com/_/openjdk)
