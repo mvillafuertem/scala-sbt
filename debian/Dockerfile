@@ -10,36 +10,45 @@ FROM openjdk:${BASE_IMAGE_TAG:-8u212-b04-jdk-stretch}
 
 # Env variables
 ARG SCALA_VERSION
-ENV SCALA_VERSION ${SCALA_VERSION:-2.13.0}
+ENV SCALA_VERSION ${SCALA_VERSION:-2.13.1}
 ARG SBT_VERSION
-ENV SBT_VERSION ${SBT_VERSION:-1.2.8}
+ENV SBT_VERSION ${SBT_VERSION:-1.3.10}
+ARG USER_ID
+ENV USER_ID ${USER_ID:-1001}
+ARG GROUP_ID
+ENV GROUP_ID ${GROUP_ID:-1001}
 
 # Install sbt
 RUN \
+  apt-get update && \
+  apt-get upgrade && \
+  apt-get install curl -y && \
   curl -L -o sbt-$SBT_VERSION.deb https://dl.bintray.com/sbt/debian/sbt-$SBT_VERSION.deb && \
   dpkg -i sbt-$SBT_VERSION.deb && \
   rm sbt-$SBT_VERSION.deb && \
   apt-get update && \
   apt-get install sbt
 
+# Install Scala
+## Piping curl directly in tar
+RUN \
+  curl -fsL https://downloads.typesafe.com/scala/$SCALA_VERSION/scala-$SCALA_VERSION.tgz | tar xfz - -C /usr/share && \
+  mv /usr/share/scala-$SCALA_VERSION /usr/share/scala && \
+  chown -R root:root /usr/share/scala && \
+  chmod -R 755 /usr/share/scala && \
+  ln -s /usr/share/scala/bin/scala /usr/local/bin/scala
+
 # Add and use user sbtuser
-RUN groupadd --gid 1001 sbtuser && useradd --gid 1001 --uid 1001 sbtuser --shell /bin/bash
+RUN groupadd --gid $GROUP_ID sbtuser && useradd --gid $GROUP_ID --uid $USER_ID sbtuser --shell /bin/bash
 RUN chown -R sbtuser:sbtuser /opt
 RUN mkdir /home/sbtuser && chown -R sbtuser:sbtuser /home/sbtuser
 RUN mkdir /logs && chown -R sbtuser:sbtuser /logs
 USER sbtuser
 
 # Switch working directory
-WORKDIR /home/sbtuser  
+WORKDIR /home/sbtuser
 
-# Install Scala
-## Piping curl directly in tar
-RUN \
-  curl -fsL https://downloads.typesafe.com/scala/$SCALA_VERSION/scala-$SCALA_VERSION.tgz | tar xfz - -C /home/sbtuser/ && \
-  echo >> /home/sbtuser/.bashrc && \
-  echo "export PATH=~/scala-$SCALA_VERSION/bin:$PATH" >> /home/sbtuser/.bashrc
-
-# Prepare sbt
+# Prepare sbt (warm cache)
 RUN \
   sbt sbtVersion && \
   mkdir -p project && \
@@ -53,24 +62,12 @@ RUN \
 # This allows users of this container to choose, whether they want to run the container as sbtuser (non-root) or as root
 USER root
 RUN \
-  echo "export PATH=/home/sbtuser/scala-$SCALA_VERSION/bin:$PATH" >> /root/.bashrc && \
+  ln -s /home/sbtuser/.cache /root/.cache && \
   ln -s /home/sbtuser/.ivy2 /root/.ivy2 && \
   ln -s /home/sbtuser/.sbt /root/.sbt
-
-# Install gcloud
-RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
-RUN apt-get install apt-transport-https -y
-RUN apt-get install ca-certificates -y
-RUN curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key --keyring /usr/share/keyrings/cloud.google.gpg add -
-RUN apt-get update -y && apt-get install google-cloud-sdk -y
-
-# Install docker-composer
-RUN apt-get update -y && apt-get install -y
-RUN curl -L https://github.com/docker/compose/releases/download/1.25.0/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
-RUN chmod +x /usr/local/bin/docker-compose
 
 # Switch working directory back to root
 ## Users wanting to use this container as non-root should combine the two following arguments
 ## -u sbtuser
 ## -w /home/sbtuser
-WORKDIR /root  
+WORKDIR /root

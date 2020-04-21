@@ -4,7 +4,12 @@ This repository contains **Dockerfile** of [Scala](http://www.scala-lang.org) an
 
 
 ```
-docker build --build-arg BASE_IMAGE_TAG="11.0.5-jdk-stretch" --build-arg SBT_VERSION="1.3.4" --build-arg SCALA_VERSION="2.13.1" -t mvillafuertem/scala-sbt:jdk-11.0.5_sbt-1.3.4_scala-2.13.1 .
+docker build --build-arg BASE_IMAGE_TAG="11.0.7-jdk-slim-buster" --build-arg SBT_VERSION="1.3.10" --build-arg SCALA_VERSION="2.13.1" -t mvillafuertem/scala-sbt:jdk-11.0.7-jdk-slim-buster_sbt-1.3.10_scala-2.13.1 .
+
+
+docker run --rm -it --entrypoint /bin/bash -v /tmp:/root/app mvillafuertem/scala-sbt
+
+
 
 ```
 
