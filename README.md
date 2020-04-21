@@ -3,11 +3,27 @@
 This repository contains **Dockerfile** of [Scala](http://www.scala-lang.org) and [sbt](http://www.scala-sbt.org).
 
 
+## Scala SBT
 ```
+cd debian
+
 docker build --build-arg BASE_IMAGE_TAG="11.0.7-jdk-slim-buster" --build-arg SBT_VERSION="1.3.10" --build-arg SCALA_VERSION="2.13.1" -t mvillafuertem/scala-sbt:jdk-11.0.7-jdk-slim-buster_sbt-1.3.10_scala-2.13.1 .
 
 
 docker run --rm -it --entrypoint /bin/bash -v /tmp:/root/app mvillafuertem/scala-sbt
+
+
+
+```
+
+## Scala Ammonite
+
+```
+cd ammonite
+
+docker build --build-arg BASE_IMAGE_TAG="11.0.7-jdk-slim-buster" --build-arg AMM_VERSION="2.0.4" --build-arg SCALA_VERSION="2.13.1" -t mvillafuertem/scala-amm:jdk-11.0.7-jdk-slim-buster_amm-2.0.4_scala-2.13.1 .
+
+docker run --rm -it --entrypoint /bin/bash -v /tmp:/root/app mvillafuertem/scala-amm
 
 
 
