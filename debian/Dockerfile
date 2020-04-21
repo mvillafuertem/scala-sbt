@@ -21,9 +21,10 @@ ENV GROUP_ID ${GROUP_ID:-1001}
 # Install aliases
 RUN \
   apt-get update && \
-  apt-get upgrade && \
+  apt-get upgrade -y && \
   apt-get install curl -y && \
-  curl -L -o /root/.bash_aliases https://raw.githubusercontent.com/mvillafuertem/dotfiles/master/bash_aliases
+  curl -L -o /root/.bash_aliases https://raw.githubusercontent.com/mvillafuertem/dotfiles/master/bash_aliases && \
+  echo '[[ -r "/root/.bash_aliases" ]] && . "/root/.bash_aliases"' >> /root/.bashrc
 
 # Install sbt
 RUN \
