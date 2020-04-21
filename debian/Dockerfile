@@ -18,11 +18,15 @@ ENV USER_ID ${USER_ID:-1001}
 ARG GROUP_ID
 ENV GROUP_ID ${GROUP_ID:-1001}
 
-# Install sbt
+# Install aliases
 RUN \
   apt-get update && \
   apt-get upgrade && \
   apt-get install curl -y && \
+  curl -L -o /root/.bash_aliases https://raw.githubusercontent.com/mvillafuertem/dotfiles/master/bash_aliases
+
+# Install sbt
+RUN \
   curl -L -o sbt-$SBT_VERSION.deb https://dl.bintray.com/sbt/debian/sbt-$SBT_VERSION.deb && \
   dpkg -i sbt-$SBT_VERSION.deb && \
   rm sbt-$SBT_VERSION.deb && \
